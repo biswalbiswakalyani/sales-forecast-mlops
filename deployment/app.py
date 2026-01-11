@@ -30,6 +30,7 @@ Product_Type = st.selectbox(
      "Fruits and Vegetables","Household","Seafood","Starchy Foods","Others"]
 )
 Product_MRP = st.number_input("Product MRP", 1.0, 500.0, 50.0)
+
 Store_Establishment_Year = st.number_input("Store Establishment Year", 1980, 2025, 2005)
 Store_Size = st.selectbox("Store Size", ["Small","Medium","High"])
 Store_Location_City_Type = st.selectbox("City Type", ["Tier 1","Tier 2","Tier 3"])
