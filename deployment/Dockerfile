@@ -6,7 +6,6 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 COPY app.py .
-COPY sales_forecast_model.pkl .
 
 EXPOSE 7860
 
