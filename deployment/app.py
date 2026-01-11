@@ -1,23 +1,27 @@
 import streamlit as st
 import pandas as pd
 import joblib
+from huggingface_hub import hf_hub_download
 
 st.set_page_config(page_title="Sales Forecast", layout="centered")
 
 @st.cache_resource
 def load_model():
-    return joblib.load("sales_forecast_model.pkl")
+    model_path = hf_hub_download(
+        repo_id="BBiswal30/sales-forecast-model",
+        filename="sales_forecast_model.pkl",
+        repo_type="model"
+    )
+    return joblib.load(model_path)
 
 model = load_model()
 
 st.title("📈 Sales Forecasting App")
-st.write("Predict product-store sales using ML")
+st.write("Predict sales using deployed ML model")
 
-# ---- Inputs ----
+# -------- User Inputs --------
 Product_Weight = st.number_input("Product Weight", 0.0, 50.0, 5.0)
-Product_Sugar_Content = st.selectbox(
-    "Sugar Content", ["Low Sugar", "Regular", "No Sugar"]
-)
+Product_Sugar_Content = st.selectbox("Sugar Content", ["Low Sugar","Regular","No Sugar"])
 Product_Allocated_Area = st.slider("Allocated Area Ratio", 0.0, 1.0, 0.05)
 Product_Type = st.selectbox(
     "Product Type",
@@ -27,14 +31,15 @@ Product_Type = st.selectbox(
 )
 Product_MRP = st.number_input("Product MRP", 1.0, 500.0, 50.0)
 Store_Establishment_Year = st.number_input("Store Establishment Year", 1980, 2025, 2005)
-Store_Size = st.selectbox("Store Size", ["Small", "Medium", "High"])
-Store_Location_City_Type = st.selectbox("City Type", ["Tier 1", "Tier 2", "Tier 3"])
+Store_Size = st.selectbox("Store Size", ["Small","Medium","High"])
+Store_Location_City_Type = st.selectbox("City Type", ["Tier 1","Tier 2","Tier 3"])
 Store_Type = st.selectbox(
     "Store Type",
     ["Departmental Store","Supermarket Type1",
      "Supermarket Type2","Food Mart"]
 )
 
+# -------- Prediction --------
 if st.button("Predict Sales"):
     input_df = pd.DataFrame([{
         "Product_Weight": Product_Weight,
@@ -50,4 +55,3 @@ if st.button("Predict Sales"):
 
     prediction = model.predict(input_df)[0]
     st.success(f"💰 Forecasted Sales: ₹ {prediction:,.2f}")
-
