@@ -1,1 +1,59 @@
+name: Sales Forecast MLOps Pipeline
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  mlops:
+    runs-on: ubuntu-latest
+
+    steps:
+    # 1. Checkout repo
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    # 2. Setup Python
+    - name: Setup Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: "3.10"
+
+    # 3. Install dependencies
+    - name: Install dependencies
+      run: |
+        pip install -r deployment/requirements.txt
+        pip install scikit-learn pandas joblib huggingface_hub
+
+    # 4. Train model
+    - name: Train model
+      run: |
+        python src/train.py
+
+    # 5. Evaluate model
+    - name: Evaluate model
+      run: |
+        python src/evaluate.py
+
+    # 6. Push model to Hugging Face Space
+    - name: Push model to Hugging Face Space
+      env:
+        HF_TOKEN: ${{ secrets.MLOps }}
+      run: |
+        pip install huggingface_hub
+        huggingface-cli login --token $HF_TOKEN
+
+        # Clone HF Space repo
+        git clone https://huggingface.co/spaces/BBiswal30/sales-forecast-mlops hf_space
+
+        # Copy new model
+        cp model/sales_forecast_model.pkl hf_space/
+
+        # Push update to HF Space
+        cd hf_space
+        git config --global user.email "mlops-bot@github.com"
+        git config --global user.name "mlops-bot"
+        git add sales_forecast_model.pkl
+        git commit -m "Auto-update model from GitHub Actions"
+        git push
 
